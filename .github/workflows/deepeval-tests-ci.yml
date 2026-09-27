@@ -42,7 +42,7 @@ jobs:
       - name: Write backend .env from secrets
         run: |
           cat > .env <<EOF
-          OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+          OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-https://ollama.com}
           OLLAMA_API_KEY=${OLLAMA_API_KEY}
           OLLAMA_TEMPERATURE=0.7
           EOF
@@ -73,6 +73,15 @@ jobs:
             -d '{"text":"I love this product, it works great!"}')
           echo "HTTP $code"; cat /tmp/resp.json; echo
           if [ "$code" != "200" ]; then docker compose logs llm-multiroute; exit 1; fi
+
+      - name: Configure DeepEval judge (Ollama Cloud if no OpenAI key)
+        if: env.OPENAI_API_KEY == ''
+        working-directory: deepeval-tests
+        env:
+          LOCAL_MODEL_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+        run: |
+          deepeval set-local-model --model gemma4:31b --base-url "${OLLAMA_BASE_URL:-https://ollama.com}/v1" --save=dotenv:.env.local --quiet
+          echo "LOCAL_MODEL_API_KEY=${LOCAL_MODEL_API_KEY}" >> .env.local
 
       - name: Run DeepEval classify tests
         working-directory: deepeval-tests

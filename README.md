@@ -21,13 +21,13 @@ NUS-ISS *Deploying and Operating AI Solutions* Day 3 workshop, based on
 Settings → Secrets and variables → Actions
 
 - **Variable** `DOCKERHUB_USERNAME` — Docker Hub account images are pushed to
-- **Secrets** `DOCKERHUB_TOKEN`, `OLLAMA_API_KEY`, `OLLAMA_BASE_URL`, `OPENAI_API_KEY`
+- **Secrets** `DOCKERHUB_TOKEN`, `OLLAMA_API_KEY` (required); `OLLAMA_BASE_URL` (optional, defaults to https://ollama.com); `OPENAI_API_KEY` (optional — without it DeepEval uses Ollama Cloud `gemma4:31b` as the judge)
 
 ## Changes from the original
 1. Docker Hub account read from the `DOCKERHUB_USERNAME` repo variable instead of hardcoded
 2. Trivy `ignore-unfixed: true` so OS CVEs with no available fix don't block the build
 3. PromptFoo/DeepEval jobs write the backend `.env` from secrets, rebuild with `--build`, run a classify smoke test and dump backend logs on failure
-4. DeepEval suites use `--reruns 2` (pytest-rerunfailures) for non-deterministic LLM-judge results
+4. DeepEval judge falls back to Ollama Cloud when no OpenAI key is set; suites use `--reruns 2` (pytest-rerunfailures) for non-deterministic LLM-judge results
 5. Removed committed `venv/`, `__pycache__/` and DeepEval run cache; added `.gitignore` and `.dockerignore`
 
 ## Run locally
