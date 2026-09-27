@@ -43,7 +43,7 @@ jobs:
         run: |
           cat > .env <<EOF
           OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-https://ollama.com}
-          OLLAMA_API_KEY=${OLLAMA_API_KEY}
+          OLLAMA_API_KEY=$(printf %s "$OLLAMA_API_KEY" | tr -d '[:space:]')
           OLLAMA_TEMPERATURE=0.7
           EOF
 
@@ -81,7 +81,7 @@ jobs:
           LOCAL_MODEL_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
         run: |
           deepeval set-local-model --model gemma4:31b --base-url "${OLLAMA_BASE_URL:-https://ollama.com}/v1" --save=dotenv:.env.local --quiet
-          echo "LOCAL_MODEL_API_KEY=${LOCAL_MODEL_API_KEY}" >> .env.local
+          echo "LOCAL_MODEL_API_KEY=$(printf %s "$LOCAL_MODEL_API_KEY" | tr -d '[:space:]')" >> .env.local
 
       - name: Run DeepEval classify tests
         working-directory: deepeval-tests
